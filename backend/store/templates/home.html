@@ -1,1 +1,9 @@
+
 <h1>Hello this is a django website</h1>
+{% for prod in prods %}
+<tr>
+  <th>{{prod.id}}</th><br>
+  <td><strong>{{prod.title}}</strong></td><br>
+  <td>{{prod.category}}</td><br>
+</tr>
+{% endfor %}
