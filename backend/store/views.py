@@ -28,6 +28,18 @@ class CategoriesView(generics.DestroyAPIView):
 
 class ProductsByCategoryView(APIView):
     def get(self, request, category):
-        products = Product.objects.filter(category=category)
+        products = Product.objects.filter(category__name=category)
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
+    
+class ProductsByCategoryLimited(APIView):
+    def get(self, request, category, number):
+        products = Product.objects.filter(category__name=category)[:number]
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
+
+class ProductsLimited(APIView):
+    def get(self, request, number):
+        products = Product.objects.all()[:number]
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
