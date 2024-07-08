@@ -22,7 +22,7 @@ class CustomersView(generics.ListAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer 
 
-class CategoriesView(generics.DestroyAPIView):
+class CategoriesView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategoriesSerializer 
 

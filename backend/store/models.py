@@ -13,7 +13,7 @@ class Category(models.Model):
 class Customer(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    phone = models.CharField(max_length=10)
+    phone = models.CharField(max_length=20)
     email = models.EmailField(max_length=100)
     password = models.CharField(max_length=100)
  
