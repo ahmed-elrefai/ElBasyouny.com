@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'drf_yasg',
+    'cart.apps.CartConfig',
     'corsheaders',
     'store',
 ]
@@ -138,3 +139,8 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
     "x-requested-with",
 ]
+
+
+# shopping cart configurations
+
+CART_SESSION_ID = 'cart'
