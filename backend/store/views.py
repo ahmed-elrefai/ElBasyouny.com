@@ -7,7 +7,7 @@ from .models import *
 from .Serializers import *
 
 def home(request):
-    return render(request, 'home.html', {'prods': Product.objects.all()})
+    return render(request, 'home.html', {'products': Product.objects.all(), 'categories': Category.objects.all()})
 
 
 class ProductsView(generics.ListAPIView):
