@@ -1,23 +1,25 @@
 import project.settings as settings
+from store.models import Product
 
-class Cart:
+class Cart(object):
     def __init__(self, request):
         self.session = request.session
-        self.cart = self.session.setdefault(settings.CART_SESSION_ID, {})
-
+        cart = self.session.get(settings.CART_SESSION_ID)
+        if not cart:
+            cart = self.session[settings.CART_SESSION_ID] = {}
+        self.cart = cart
     
     def add(self, product, quantity=1, override_quantity=False):
         product_id = str(product.id)
-        cart_item = self.cart.setdefault(product_id, {'price': str(product.price), 'quantity': 0, 'title': product.title, 'img': str(product.img)})
-
+        if product_id not in self.cart:
+            self.cart[product_id] = {'quantity': 0, 'price': str(product.price)}
+        
         if override_quantity:
-            cart_item['quantity'] = quantity
+            self.cart[product_id]['quantity'] = quantity
         else:
-            cart_item['quantity'] += quantity
-
-        cart_item['subtotal'] = str(self.get_sub_total(product.price, cart_item['quantity'])) 
+            self.cart[product_id]['quantity'] += quantity
         self.save()
-
+    
     def save(self):
         self.session[settings.CART_SESSION_ID] = self.cart
         self.session.modified = True
@@ -26,19 +28,26 @@ class Cart:
         product_id = str(product.id)
         if product_id in self.cart:
             del self.cart[product_id]
-            self.save()
+        self.save()
 
+    def __iter__(self):
+        product_ids = self.cart.keys()
+        products = Product.objects.filter(id__in=product_ids)
+        cart = self.cart.copy()
+        for product in products:
+            cart[str(product.id)]['product'] = product
+        for item in cart.values():
+            item['price'] = float(item['price'])
+            item['total_price'] = float(item['price']) * item['quantity']
+            yield item
 
     def __len__(self):
         return sum(item['quantity'] for item in self.cart.values())
 
-    def get_sub_total(self, price, quantity):
-        return quantity * price
+    def get_sub_total_price(self):
+        return sum(float(item['price']) * item['quantity'] for item in self.cart.values())
     
-    def get_total(self):
-        return sum(float(item['price']) * float(item['quantity']) for item in self.cart.values())
-
     def clear(self):
-        """Clear all items from the cart."""
-        self.cart = {}
+        for key in list(self.cart.keys()):
+            del self.cart[key]
         self.save()
