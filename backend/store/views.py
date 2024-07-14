@@ -3,11 +3,13 @@ from django.http import JsonResponse
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from cart.cart import Cart
 from .models import *
 from .Serializers import *
 
 def home(request):
-    return render(request, 'home.html', {'products': Product.objects.all(), 'categories': Category.objects.all()})
+    cart = Cart(request)
+    return render(request, 'home.html', {'products': Product.objects.all(), 'categories': Category.objects.all(), 'cart_count': len(cart)})
 
 
 class ProductsView(generics.ListAPIView):
