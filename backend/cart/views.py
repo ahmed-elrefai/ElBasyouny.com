@@ -16,6 +16,7 @@ def update_quantity(request, item_id:str):
     item_id = str(item_id)
     if request.method == 'POST':
         quantity = int(request.POST.get('quantity', 1))  # Default to 1 if not provided
+        subtotal = float(request.POST.get('subtotal', 1))
         cart = Cart(request)
         cart.cart[str(item_id)]['quantity'] = quantity
         cart.cart[item_id]['subtotal'] = cart.get_sub_total_price(float(cart.cart[item_id]['price']), cart.cart[item_id]['quantity'])
