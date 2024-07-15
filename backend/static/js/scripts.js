@@ -63,7 +63,6 @@ document.addEventListener('DOMContentLoaded', function () {
         checkoutModal.show(); // Show the modal
     });
 
-    // Handle the form submission
     document.getElementById('submitCheckout').addEventListener('click', function () {
         const name = document.getElementById('name').value;
         const address = document.getElementById('address').value;
@@ -77,6 +76,8 @@ document.addEventListener('DOMContentLoaded', function () {
             email: email
         };
 
+        showLoadingIndicator(true);
+
         fetch('/cart/confirm-order/', {
             method: 'POST',
             headers: {
@@ -87,22 +88,47 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(response => response.json())
         .then(data => {
+            showLoadingIndicator(false);
             if (data.message) {
-                console.log(data.message);
-                alert('Order confirmed and email sent.');
+                showConfirmationModal('Order Confirmed!', 'Your order has been confirmed! Check your email for the exciting details.');
             } else {
-                alert('Error: ' + data.error);
+                showConfirmationModal('Oops!', 'Something went wrong: ' + data.error);
             }
         })
         .catch((error) => {
+            showLoadingIndicator(false);
             console.error('Error:', error);
-            alert('An error occurred while confirming the order. Please try again.');
+            showConfirmationModal('Oops!', 'An unexpected error occurred. Please try again.');
         });
 
-        // Optionally close the modal
+        // Optionally close the checkout modal
         const checkoutModal = bootstrap.Modal.getInstance(document.getElementById('checkoutModal'));
         checkoutModal.hide();
     });
+
+    function showLoadingIndicator(show) {
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        if (show) {
+            loadingIndicator.style.display = 'block';
+        } else {
+            loadingIndicator.style.display = 'none';
+        }
+    }
+
+    function showConfirmationModal(title, message) {
+        const confirmationModalTitle = document.getElementById('confirmationModalTitle');
+        const confirmationModalBody = document.getElementById('confirmationModalBody');
+
+        confirmationModalTitle.textContent = title;
+        confirmationModalBody.textContent = message;
+
+        const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+        confirmationModal.show();
+
+        setTimeout(() => {
+            confirmationModal.hide();
+        }, 3000); // Show the modal for 3 seconds
+    }
 });
 
 function updateCartTotal() {
