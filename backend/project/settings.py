@@ -30,7 +30,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'cart.apps.CartConfig',
     'corsheaders',
-    'store',
+    'store.apps.StoreConfig',
 ]
 
 MIDDLEWARE = [
@@ -70,8 +70,12 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'pdb',
+        'USER': 'elrefai',
+        'PASSWORD': 'Ahmed2005as#root',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -174,3 +178,9 @@ LOGGING = {
         },
     },
 }
+
+# ADMINS 
+ADMINS = [
+    'elrefaayahmed196@gmail.com'
+] 
+MANAGERS = ADMINS

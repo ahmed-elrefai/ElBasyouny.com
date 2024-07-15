@@ -7,6 +7,8 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 import logging
 import json
+import datetime
+from django.conf import settings
 
 def show_cart(request):
     cart = Cart(request)
@@ -58,7 +60,7 @@ def confirm_order(request):
             email = data.get('email')
             address = data.get('address')
             phone = data.get('phone')
-
+            
             cart = Cart(request)
             cart_items = cart.cart.items()  # Get the cart items directly from the Cart object
 
@@ -72,9 +74,16 @@ def confirm_order(request):
             # Send email
             try:
                 send_mail(
-                    'تأكيد الطلب',
+                    'تأكيد الطلب - البسيوني',
                     f'شكراً {name}, لأختياركم البان البسيوني.\n\nتفاصيل طلبك:\n{order_details}\nسيتم شحن طلبك إلى {address}.\nسيتواصل معك أقرب فرع لدينا قريباً على الرقم {phone}.',
-                    'elrefaayahmed196@gmail.com',
+                    settings.EMAIL_HOST_USER,
+                    [email],
+                    fail_silently=False,
+                )
+                send_mail(
+                    'طلب جديد',
+                    f'طلب جديد بأسم: {name}, جوال: {phone} \n التفاصيل:\n {order_details} \n وقت الطلب: {datetime.datetime.now()} \t العنوان: {address} \n يرجي تأكيد الطلب مع العميل من خلال الرقم بالأعلي',
+                    settings.EMAIL_HOST_USER,
                     [email],
                     fail_silently=False,
                 )

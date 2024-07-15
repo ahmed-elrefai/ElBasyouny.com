@@ -140,7 +140,7 @@ function updateCartTotal() {
         const quantity = parseInt(input.value);
         total += price * quantity;
         cart_total += quantity;
-
+        
         const itemId = input.dataset.id;
         document.getElementById(`item-quantity-${itemId}`).textContent = quantity; // Update quantity
         document.getElementById(`item-subtotal-${itemId}`).textContent = 'ج.م ' + (price * quantity).toFixed(2); // Update subtotal

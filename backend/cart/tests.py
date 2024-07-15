@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from store.models import Category, Product
-from cart.cart import Cart
+from django.core import mail
 import json
 
 class CartViewTests(TestCase):
@@ -51,7 +51,7 @@ class CartViewTests(TestCase):
         # Confirm the order
         data = {
             'name': 'Test User',
-            'email': 'test@example.com',
+            'email': 'elrefaayahmed196@gmail.com',
             'address': 'Test Address',
             'phone': '1234567890'
         }
@@ -60,7 +60,8 @@ class CartViewTests(TestCase):
 
         # Check the success message in the response
         response_data = response.json()
-        self.assertIn('message', response_data)
+        self.assertEqual(len(mail.outbox), 1)  # Check that one email was sent
+        self.assertIn('شكراً Test User', mail.outbox[0].body)  # Check message content/body
 
     def test_confirm_order_no_items(self):
         data = {
