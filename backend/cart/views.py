@@ -67,13 +67,13 @@ def confirm_order(request):
 
             order_details = ""
             for id, item in cart_items:
-                order_details += f"{item['title']} (الكمية: {item['quantity']}) - ج.م {item['price']}\n"
+                order_details += f"{item['title']} (الكمية: {item['quantity']}) - ج.م {item['subtotal']}\n"
 
             # Send email
             try:
                 send_mail(
                     'تأكيد الطلب',
-                    f'شكراً لأختياركم البان البسيوني، {name}.\n\nتفاصيل طلبك:\n{order_details}\nسيتم شحن طلبك إلى {address}.\nسيتواصل معك أقرب فرع لدينا قريباً على الرقم {phone}.',
+                    f'شكراً {name}, لأختياركم البان البسيوني.\n\nتفاصيل طلبك:\n{order_details}\nسيتم شحن طلبك إلى {address}.\nسيتواصل معك أقرب فرع لدينا قريباً على الرقم {phone}.',
                     'elrefaayahmed196@gmail.com',
                     [email],
                     fail_silently=False,

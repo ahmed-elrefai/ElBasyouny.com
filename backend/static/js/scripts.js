@@ -70,7 +70,34 @@ document.addEventListener('DOMContentLoaded', function () {
         const phone = document.getElementById('phone').value;
         const email = document.getElementById('email').value;
 
-        console.log({ name, address, phone });
+        const data = {
+            name: name,
+            address: address,
+            phone: phone,
+            email: email
+        };
+
+        fetch('/cart/confirm-order/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                console.log(data.message);
+                alert('Order confirmed and email sent.');
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            alert('An error occurred while confirming the order. Please try again.');
+        });
 
         // Optionally close the modal
         const checkoutModal = bootstrap.Modal.getInstance(document.getElementById('checkoutModal'));
