@@ -102,7 +102,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Cairo'
 
 USE_I18N = True
 
@@ -179,8 +179,13 @@ LOGGING = {
     },
 }
 
-# ADMINS 
+# ADMINS, MANAGERS & BRANCHES' EMAILS
 ADMINS = [
     'elrefaayahmed196@gmail.com'
 ] 
 MANAGERS = ADMINS
+
+BRANCHES_EMAILS = [
+    'elrefaayahmed196@gmail.com',
+    'elrefaaybusiness25@gmail.com'
+]

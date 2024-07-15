@@ -90,7 +90,10 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             showLoadingIndicator(false);
             if (data.message) {
-                showConfirmationModal('Order Confirmed!', 'Your order has been confirmed! Check your email for the exciting details.');
+                showConfirmationModal(
+                    'تأكيد الطلب',
+                    'تم استلام طلبك. سنرسل تفاصيل الطلب إلى بريدك الإلكتروني. يرجى الانتظار لتواصل أحد ممثلينا.'
+                );
             } else {
                 showConfirmationModal('Oops!', 'Something went wrong: ' + data.error);
             }
@@ -127,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         setTimeout(() => {
             confirmationModal.hide();
-        }, 3000); // Show the modal for 3 seconds
+        }, 10000); // Show the modal for 10 seconds
     }
 });
 

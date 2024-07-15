@@ -62,35 +62,56 @@ def confirm_order(request):
             phone = data.get('phone')
             
             cart = Cart(request)
-            cart_items = cart.cart.items()  # Get the cart items directly from the Cart object
+            cart_items = cart.cart.items()
 
             if not cart_items:
                 return JsonResponse({'error': 'No items in the cart.'}, status=400)
 
             order_details = ""
+            total_price = 0  # Initialize total price
             for id, item in cart_items:
                 order_details += f"{item['title']} (الكمية: {item['quantity']}) - ج.م {item['subtotal']}\n"
+                total_price += item['subtotal']  # Accumulate total price
+            order_details += f"\n إجمالي السعر: ج.م {total_price}"
+            order_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            # Send email
-            try:
-                send_mail(
-                    'تأكيد الطلب - البسيوني',
-                    f'شكراً {name}, لأختياركم البان البسيوني.\n\nتفاصيل طلبك:\n{order_details}\nسيتم شحن طلبك إلى {address}.\nسيتواصل معك أقرب فرع لدينا قريباً على الرقم {phone}.',
-                    settings.EMAIL_HOST_USER,
-                    [email],
-                    fail_silently=False,
-                )
-                send_mail(
-                    'طلب جديد',
-                    f'طلب جديد بأسم: {name}, جوال: {phone} \n التفاصيل:\n {order_details} \n وقت الطلب: {datetime.datetime.now()} \t العنوان: {address} \n يرجي تأكيد الطلب مع العميل من خلال الرقم بالأعلي',
-                    settings.EMAIL_HOST_USER,
-                    [email],
-                    fail_silently=False,
-                )
-                return JsonResponse({'message': 'تم تأكيد الطلب وإرسال البريد الإلكتروني.'})
-            except Exception as e:
-                logger.error(f'خطأ في إرسال البريد الإلكتروني: {e}')
-                return JsonResponse({'error': str(e)}, status=500)
+            # Send email to customer
+            send_mail(
+                'تأكيد الطلب - البسيوني',
+f'''شكراً {name}، لاختياركم البان البسيوني.
+
+تفاصيل طلبك:
+{order_details}
+
+سيتم شحن طلبك إلى: {address}.
+سيتواصل معك أقرب فرع لدينا قريباً على الرقم: {phone}.
+''',
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False,
+            )
+
+            # Send email to branches
+            send_mail(
+                'طلب جديد',
+f'''طلب جديد بأسم: {name}
+جوال: {phone}
+
+التفاصيل:
+{order_details}
+
+وقت الطلب: {order_time}
+العنوان: {address}
+
+يرجى تأكيد الطلب مع العميل من خلال الرقم بالأعلى.
+''',
+                settings.EMAIL_HOST_USER,
+                settings.BRANCHES_EMAILS,
+                fail_silently=False,
+            )
+
+            return JsonResponse({'message': 'تم تأكيد الطلب وإرسال البريد الإلكتروني.'})
+
         except json.JSONDecodeError as e:
             return JsonResponse({'error': 'Invalid JSON data.'}, status=400)
 
