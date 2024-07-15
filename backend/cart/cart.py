@@ -18,6 +18,8 @@ class Cart(object):
             self.cart[product_id]['quantity'] = quantity
         else:
             self.cart[product_id]['quantity'] += quantity
+            
+        self.cart[product_id]['subtotal'] = self.get_sub_total_price(float(self.cart[product_id]['price']), self.cart[product_id]['quantity'])
 
         self.save()
     
