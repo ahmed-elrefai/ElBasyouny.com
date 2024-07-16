@@ -189,3 +189,7 @@ BRANCHES_EMAILS = [
     'elrefaayahmed196@gmail.com',
     'elrefaaybusiness25@gmail.com'
 ]
+
+# crsf token:
+
+CSRF_COOKIE_NAME = "csrftoken"

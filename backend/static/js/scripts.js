@@ -3,16 +3,16 @@ document.addEventListener('DOMContentLoaded', function () {
     updateCartTotal();
 
     document.querySelectorAll('.quantity-input').forEach(input => {
-        input.addEventListener('change', function () {
+        input.addEventListener('change', debounce(function () {
             const itemId = this.dataset.id;
             const price = parseFloat(this.dataset.price);
             const quantity = parseInt(this.value);
             const subtotal = price * quantity;
-
+    
             // Update subtotal in the UI
             this.nextElementSibling.textContent = 'ج.م ' + subtotal.toFixed(2);
             updateCartTotal();
-
+    
             // Send the update to the server
             const xhr = new XMLHttpRequest();
             xhr.open('POST', `/cart/update/${itemId}/`, true);
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             };
             xhr.send(`quantity=${quantity}`);
-        });
+        }, 500)); // Adjust debounce delay as needed
     });
 
     const checkoutButton = document.querySelector('#checkoutButton');
@@ -133,6 +133,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 10000); // Show the modal for 10 seconds
     }
 });
+
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+}
 
 function updateCartTotal() {
     let total = 0;

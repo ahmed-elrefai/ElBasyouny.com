@@ -22,22 +22,20 @@ def add_to_cart(request, product_id):
 
 @require_POST
 def update_quantity(request, item_id):
-    quantity = request.POST.get('quantity')
-    cart = Cart(request)
-
-    if item_id in cart.cart.keys():
-        try:
-            cart.cart[item_id]['quantity'] = int(quantity)
-            cart.cart[item_id]['subtotal'] = cart.get_sub_total_price(
-                float(cart.cart[item_id]['price']),
-                cart.cart[item_id]['quantity']
-            )
-            cart.save()  # Save the cart after updating the quantity
-            return JsonResponse({'message': 'Quantities updated successfully.'})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-
-    return JsonResponse({'error': 'Item not found in cart.'}, status=404)
+    cart = request.session.get('cart', {})
+    if item_id not in cart:
+        return JsonResponse({'error': 'Item not found in cart.'}, status=400)
+    
+    try:
+        quantity = int(request.POST.get('quantity'))
+        if quantity <= 0:
+            del cart[item_id]
+        else:
+            cart[item_id] = quantity
+        request.session['cart'] = cart
+        return JsonResponse({'message': 'Quantities updated successfully.'})
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Invalid quantity.'}, status=400)
 
 
 
@@ -51,34 +49,36 @@ def remove_item(request, product_id):
 logger = logging.getLogger(__name__)
 
 
-@csrf_exempt
+@require_POST
 def confirm_order(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            name = data.get('name')
-            email = data.get('email')
-            address = data.get('address')
-            phone = data.get('phone')
-            
-            cart = Cart(request)
-            cart_items = cart.cart.items()
+    try:
+        data = json.loads(request.body)
+        name = data.get('name')
+        email = data.get('email')
+        address = data.get('address')
+        phone = data.get('phone')
+        
+        if not all([name, email, address, phone]):
+            return JsonResponse({'error': 'All fields are required.'}, status=400)
+        
+        cart = Cart(request)
+        cart_items = cart.cart.items()
 
-            if not cart_items:
-                return JsonResponse({'error': 'No items in the cart.'}, status=400)
+        if not cart_items:
+            return JsonResponse({'error': 'No items in the cart.'}, status=400)
 
-            order_details = ""
-            total_price = 0  # Initialize total price
-            for id, item in cart_items:
-                order_details += f"{item['title']} (الكمية: {item['quantity']}) - ج.م {item['subtotal']}\n"
-                total_price += item['subtotal']  # Accumulate total price
-            order_details += f"\n إجمالي السعر: ج.م {total_price}"
-            order_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        order_details = ""
+        total_price = 0  # Initialize total price
+        for id, item in cart_items:
+            order_details += f"{item['title']} (الكمية: {item['quantity']}) - ج.م {item['subtotal']}\n"
+            total_price += item['subtotal']  # Accumulate total price
+        order_details += f"\n إجمالي السعر: ج.م {total_price}"
+        order_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            # Send email to customer
-            send_mail(
-                'تأكيد الطلب - البسيوني',
-f'''شكراً {name}، لاختياركم البان البسيوني.
+        # Send email to customer
+        send_mail(
+            'تأكيد الطلب - البسيوني',
+            f'''شكراً {name}، لاختياركم البان البسيوني.
 
 تفاصيل طلبك:
 {order_details}
@@ -86,15 +86,15 @@ f'''شكراً {name}، لاختياركم البان البسيوني.
 سيتم شحن طلبك إلى: {address}.
 سيتواصل معك أقرب فرع لدينا قريباً على الرقم: {phone}.
 ''',
-                settings.EMAIL_HOST_USER,
-                [email],
-                fail_silently=False,
-            )
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False,
+        )
 
-            # Send email to branches
-            send_mail(
-                'طلب جديد',
-f'''طلب جديد بأسم: {name}
+        # Send email to branches
+        send_mail(
+            'طلب جديد',
+            f'''طلب جديد بأسم: {name}
 جوال: {phone}
 
 التفاصيل:
@@ -105,14 +105,14 @@ f'''طلب جديد بأسم: {name}
 
 يرجى تأكيد الطلب مع العميل من خلال الرقم بالأعلى.
 ''',
-                settings.EMAIL_HOST_USER,
-                settings.BRANCHES_EMAILS,
-                fail_silently=False,
-            )
+            settings.EMAIL_HOST_USER,
+            settings.BRANCHES_EMAILS,
+            fail_silently=False,
+        )
+        cart.clear()
+        return JsonResponse({'message': 'تم تأكيد الطلب وإرسال البريد الإلكتروني.'})
 
-            return JsonResponse({'message': 'تم تأكيد الطلب وإرسال البريد الإلكتروني.'})
-
-        except json.JSONDecodeError as e:
-            return JsonResponse({'error': 'Invalid JSON data.'}, status=400)
-
-    return JsonResponse({'error': 'Invalid request method.'}, status=405)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON data.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
