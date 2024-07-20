@@ -1,2 +1,0 @@
-username = elbasyounyadmin2024
-password = elbasyounyecom2024
