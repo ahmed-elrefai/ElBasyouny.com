@@ -67,13 +67,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const name = document.getElementById('name').value;
         const address = document.getElementById('address').value;
         const phone = document.getElementById('phone').value;
-        const email = document.getElementById('email').value;
 
         const data = {
             name: name,
             address: address,
             phone: phone,
-            email: email
         };
 
         showLoadingIndicator(true);

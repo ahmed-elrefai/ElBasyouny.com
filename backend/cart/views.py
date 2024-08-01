@@ -58,7 +58,7 @@ def confirm_order(request):
         address = data.get('address')
         phone = data.get('phone')
         
-        if not all([name, email, address, phone]):
+        if not all([name, address, phone]):
             return JsonResponse({'error': 'All fields are required.'}, status=400)
         
         cart = Cart(request)
@@ -74,22 +74,6 @@ def confirm_order(request):
             total_price += item['subtotal']  # Accumulate total price
         order_details += f"\n إجمالي السعر: ج.م {total_price}"
         order_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # Send email to customer
-        send_mail(
-            'تأكيد الطلب - البسيوني',
-            f'''شكراً {name}، لاختياركم البان البسيوني.
-
-تفاصيل طلبك:
-{order_details}
-
-سيتم شحن طلبك إلى: {address}.
-سيتواصل معك أقرب فرع لدينا قريباً على الرقم: {phone}.
-''',
-            settings.EMAIL_HOST_USER,
-            [email],
-            fail_silently=False,
-        )
 
         # Send email to branches
         send_mail(
