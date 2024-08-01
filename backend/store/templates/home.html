@@ -82,6 +82,12 @@
                         </ul>
                     </div>
                 </form>
+                <!-- Search Bar -->
+                <form class="d-flex me-auto" onsubmit="SearchProducts(); return false;" method="GET">
+                    <input class="form-control me-2 product-search-input" type="search" name="q" placeholder="ابحث عن المنتجات..." aria-label="Search">
+                    <button class="btn btn-outline-dark" type="submit">بحث</button>
+                </form>
+                <!-- Cart Button -->
                 <a class="btn btn-outline-dark" href="/cart/show-cart/">
                     <i class="bi-cart-fill me-1"></i>
                     Cart
@@ -105,7 +111,7 @@
             <h2 class="text-center mb-4">المنتجات المميزة</h2>
             <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center" id="product-list">
                 {% for product in products %}
-                <div class="col mb-5 product-item" data-category="{{ product.category }}">
+                <div class="col mb-5 product-item" data-category="{{ product.category }}" data-title="{{ product.title }}">
                     <div class="card h-100 shadow-sm">
                         <img class="card-img-top product-img" src="{{ MEDIA_URL }}{{ product.img }}" alt="{{ product.title }}" />
                         <div class="card-body p-4 text-center">
@@ -163,6 +169,15 @@
             var products = document.querySelectorAll('.product-item');
             products.forEach(function(product) {
                 product.style.display = (product.getAttribute('data-category') === category) ? 'block' : 'none';
+            });
+        }
+
+        function SearchProducts() {
+            var products = document.querySelectorAll('.product-item');
+            var search_str = document.querySelector('.product-search-input').value.toLowerCase().trim();
+            products.forEach(function(product) {
+                var title = product.getAttribute('data-title').toLowerCase();
+                product.style.display = (title.includes(search_str)) ? 'block' : 'none';
             });
         }
 
