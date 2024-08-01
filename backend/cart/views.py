@@ -31,7 +31,7 @@ def update_quantity(request, item_id):
         if quantity <= 0:
             del cart[item_id]
         else:
-            cart[item_id] = quantity
+            cart[item_id]['quantity'] = quantity
         request.session['cart'] = cart
         return JsonResponse({'message': 'Quantities updated successfully.'})
     except (ValueError, TypeError):
